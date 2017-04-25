@@ -56,6 +56,11 @@ class GameScene: SKScene {
             //stretch the nose up
             dst[7] = vector_float2(0.5, 1.5)
             
+        case 1:
+            //stretch the wings down
+            dst[0] = vector_float2(0, -0.5)
+            dst[2] = vector_float2(1, -0.5)
+            
         default:
             break
         }
