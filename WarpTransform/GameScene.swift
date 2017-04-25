@@ -71,6 +71,17 @@ class GameScene: SKScene {
             dst[7] = vector_float2(0.5, 0.75)
             dst[8] = vector_float2(1.0, 0.75)
             
+        case 3:
+            // flip left to right
+            dst[3] = vector_float2(1.0, 0.0)
+            dst[5] = vector_float2(0.0, 0.0)
+            
+            dst[3] = vector_float2(1.0, 0.5)
+            dst[5] = vector_float2(0.0, 0.5)
+            
+            dst[6] = vector_float2(1.0, 1)
+            dst[8] = vector_float2(0.0, 1)
+            
         default:
             break
         }
