@@ -61,6 +61,16 @@ class GameScene: SKScene {
             dst[0] = vector_float2(0, -0.5)
             dst[2] = vector_float2(1, -0.5)
             
+        case 2:
+            //squash ship vertically
+            dst[0] = vector_float2(0.0, 0.25)
+            dst[1] = vector_float2(0.5, 0.25)
+            dst[2] = vector_float2(1.0, 0.25)
+            
+            dst[6] = vector_float2(0.0, 0.75)
+            dst[7] = vector_float2(0.5, 0.75)
+            dst[8] = vector_float2(1.0, 0.75)
+            
         default:
             break
         }
