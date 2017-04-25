@@ -11,79 +11,100 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
+    var spaceShip: SKSpriteNode!
+    var warpType = 0
+    
+    var src = [
+        
+        //bottom row: left, center, right
+        vector_float2(0.0, 0.0),
+        vector_float2(0.5, 0.0),
+        vector_float2(1.0, 0.0),
+        
+        // middle row: left, center, right
+        vector_float2(0.0, 0.5),
+        vector_float2(0.5, 0.5),
+        vector_float2(1.0, 0.5),
+        
+        // top row: left, center, right
+        vector_float2(0.0, 1.0),
+        vector_float2(0.5, 1.0),
+        vector_float2(1.0, 1.0)
+        
+    ]
+    
     
     override func didMove(to view: SKView) {
         
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
+        spaceShip = SKSpriteNode(imageNamed: "Spaceship")
+        addChild(spaceShip)
         
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
+        let warp = SKWarpGeometryGrid(columns: 2, rows: 2, sourcePositions: src, destinationPositions: src)
         
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
-    }
-    
-    
-    func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
-    }
-    
-    func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
-    }
-    
-    func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
+        spaceShip.warpGeometry = warp
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+        
+        //create a destination transform by copying the source transform
+        var dst = src
+        
+        //this is where we'll be modifying the destination transform
+        switch warpType {
+            
+        case 0:
+            //stretch the nose up
+            dst[7] = vector_float2(0.5, 1.5)
+            
+        default:
+            break
         }
         
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
+        //create a new warp geometry by mapping from src to dst
+        let newWarp = SKWarpGeometryGrid(columns: 2, rows: 2, sourcePositions: src, destinationPositions: dst)
+        
+        //pull out the existing warp geometry so we have something to animate back to
+        let oldWarp = spaceShip.warpGeometry!
+        
+        //try to create an SKAction with these two warps; each will animate over 0.5 seconds
+        if let action = SKAction.animate(withWarps: [newWarp, oldWarp], times: [0.5, 1]) {
+            
+            // run it on the spaceship sprite
+            spaceShip.run(action)
+        }
+        
+        //add 1 to the warp type so that we get a different transformation next time
+        warpType += 1
+        
+        //if we're higher than 3, warp back to 0
+        if warpType > 3 {
+            warpType = 0
+        }
+        
     }
     
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
-    }
     
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    
-    override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
